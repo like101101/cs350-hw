@@ -6,10 +6,6 @@
 #include <time.h>
 #include "hashutil.h"
 
-#define NUM_THREADS 1
-#define NUM_JOBS 192
-#define WORK_PER_THEARD -1
-
 #if defined(__APPLE__)
 #  define COMMON_DIGEST_FOR_OPENSSL
 #  include <CommonCrypto/CommonDigest.h>
@@ -18,8 +14,9 @@
 #  include <openssl/md5.h>
 #endif
 
-pthread_t tid[NUM_THREADS];
-pthread_mutex_t lock;
+
+int NUM_THREADS, NUM_JOBS;
+int WORK_PER_THREAD = 0;
 
 struct node {
     char data[33];
@@ -35,7 +32,7 @@ void split_work(struct node* assignment[], struct node* head){
     while (current->data[0] != '\0'){
         current = current->next;
         i++;
-        if (i == WORK_PER_THEARD){
+        if (i == WORK_PER_THREAD){
             idx++;
             assignment[idx] = current;
             i = 0;
@@ -55,6 +52,7 @@ struct node * read_file(FILE *fp){
     struct node *unhashes = head;
 
     len = getline(&buf, &bufsize, fp);
+    NUM_JOBS ++;
     while (len > 0){
         strtok(buf, "\n");
         strcpy(head->data, buf);
@@ -62,6 +60,7 @@ struct node * read_file(FILE *fp){
         head->next->next = NULL;
         head->result = -1;
         head = head->next;
+        NUM_JOBS ++;
         len = getline(&buf, &bufsize, fp);
     }
     
@@ -85,7 +84,7 @@ void* dowork(struct node *unhashes) {
         unhashes->result = unhash(0, unhashes->data);
         unhashes = unhashes->next;
         runs ++;
-        if (runs == WORK_PER_THEARD && WORK_PER_THEARD != -1){
+        if (runs == WORK_PER_THREAD && WORK_PER_THREAD != -1){
             break;
         }
     }
@@ -100,37 +99,44 @@ int main(int argc, char **argv) {
 
 
     FILE *fp;
-    int i = 0;
     int err;
-    int len = 0;
     clock_t start, end;
     char *buf = NULL;
     size_t bufsize = 33;
 
-    int DEBUG = 0;
-
-    struct node *assignment[NUM_THREADS];
-    
-    if (DEBUG){
+    if (argc == 0){
+        //default reading
         fp = fopen("hashes.txt", "r");
+    }else if (argc == 1){
+        fp = fopen(argv[1], "r");
+        NUM_THREADS = 1;
     }else{
         fp = fopen(argv[1], "r");
+        NUM_THREADS = atoi(argv[2]);
     }
+    
     
     if (fp == NULL){
         printf("Error opening file");
         exit(1);
     }
 
-    if (pthread_mutex_init(&lock, NULL) != 0)
-    {
-        printf("\n mutex init failed\n");
-        return 1;
-    }
-
 
     struct node *unhashes = read_file(fp);
     fclose(fp);
+    
+    if (NUM_THREADS == 1){
+        WORK_PER_THREAD = NUM_JOBS;
+    }else{
+        if (NUM_JOBS % NUM_THREADS == 0){
+            WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
+        }else{
+            WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
+        }   
+    }
+    
+    struct node *assignment[NUM_THREADS];
+    pthread_t tid[NUM_THREADS];
 
     split_work(assignment, unhashes);
     

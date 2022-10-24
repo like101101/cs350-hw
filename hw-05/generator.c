@@ -9,14 +9,20 @@ int main(int argc, char **argv) {
     FILE *fp1;
     FILE *fp2;
 
-    if (argc != 2) {
-        printf("Usage: %s <num_hashes>\n", argv[0]);
+    if (argc != 3) {
+        printf("Usage: %s <num_hashes> <start>\n", argv[0]);
         return 1;
     }
 
     int num_hashes = atoi(argv[1]);
     if (num_hashes <= 0) {
         printf("Invalid number of hashes");
+        return 1;
+    }
+    
+    int start = atoi(argv[2]);
+    if (start <= 0) {
+        printf("Invalid start");
         return 1;
     }
 
@@ -29,7 +35,7 @@ int main(int argc, char **argv) {
 
     char *to_unhash = NULL;
     char *hashed = NULL;
-    for (int i = 0; i < num_hashes; i++) {
+    for (int i = start; i < start+num_hashes; i++) {
         to_unhash = malloc(8);
         sprintf(to_unhash, "%d", i);
         hashed = hash(to_unhash, strlen(to_unhash));
