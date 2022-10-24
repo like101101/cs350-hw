@@ -104,12 +104,12 @@ int main(int argc, char **argv) {
     char *buf = NULL;
     size_t bufsize = 33;
 
-    if (argc == 0){
+    if (argc == 1){
         //default reading
         fp = fopen("hashes.txt", "r");
-    }else if (argc == 1){
+    }else if (argc == 2){
         fp = fopen(argv[1], "r");
-        NUM_THREADS = 1;
+        NUM_THREADS = 2;
     }else{
         fp = fopen(argv[1], "r");
         NUM_THREADS = atoi(argv[2]);

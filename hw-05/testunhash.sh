@@ -22,7 +22,7 @@ if [ ! -f UnHash ]; then
     exit 1
 fi
 
-./Generator 1
+./Generator 1 1
 
 ./UnHash $(cat hashes.txt) > output.txt
 
