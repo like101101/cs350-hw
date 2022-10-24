@@ -13,3 +13,5 @@ if [ $? -eq 0 ]; then
 else
     echo "Test failed"
 fi
+
+make clean

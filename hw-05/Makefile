@@ -1,21 +1,31 @@
+CC = gcc
 OS_NAME := $(shell uname -s | tr A-Z a-z)
+CFLAGS = -O0 -g -w
 
-os:
-	@echo $(OS_NAME)
+LDLIBS_LINUX = -lcrypto -pthread
+LDLIBS_DARWIN = -pthread
 
-all: unhash dispatcher generator
+ifeq ($(OS_NAME), linux)
+	LDLIBS := $(LDLIBS_LINUX)
+else
+	LDLIBS := $(LDLIBS_DARWIN)
+endif
 
-unhash: unhash.c 
-	gcc -o UnHash unhash.c hashutil.c -w #-lcrypto
+.SILENT: clean
 
-dispatcher: dispatcher.c
-	gcc -o Dispatcher dispatcher.c hashutil.c -w #-lcrypto -pthread
+all: UnHash Dispatcher Generator
 
-generator: generator.c
-	gcc -o Generator generator.c hashutil.c -w 
+UnHash: unhash.c hashutil.c
+	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
-zip:
-	zip archive.zip Makefile unhash.c hashutil.c hashutil.h
+Dispatcher: dispatcher.c hashutil.c
+	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
+
+Generator: generator.c hashutil.c
+	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
+
+zip: Makefile unhash.c hashutil.c hashutil.h
+	zip archive.zip $^
 
 clean:
 	rm -rf Dispatcher archive.zip *.dSYM UnHash Generator hashes.txt numbers.txt output.txt
