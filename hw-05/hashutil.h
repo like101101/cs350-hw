@@ -3,7 +3,7 @@
 
 struct unhash_args {
     int start;
-    int end;
+    int count;
     char *hash;
 };
 

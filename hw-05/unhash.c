@@ -12,19 +12,17 @@
 #include "hashutil.h"
 #include <pthread.h>
 
-int NUM_THREADS = 8;
+int NUM_THREADS = 2;
 
-void* unhash_one(struct unhash_args *args){
-
-    int start = args->start;
-    int end = args->end;
-    char *hash = args->hash;
-
-    int result = unhash(start, end, hash);
+void* unhash_one(void *arguments){
+    struct unhash_args *args = arguments;
+    int result = unhash(args->start, args->count, args->hash);
     if (result != -1){
-        printf("%d", result);
+        printf("%d\n", result);
         return NULL;
     }
+    
+    free(args);
     return NULL;
 
 }
@@ -37,13 +35,14 @@ int main(int argc, char **argv) {
     }
 
     pthread_t tid[NUM_THREADS];
+    struct unhash_args *threads[NUM_THREADS];
 
     for (int j = 0; j < NUM_THREADS; j++){
         struct unhash_args *args = malloc(sizeof(struct unhash_args));
-        args->start = j * 1000000;
-        args->end = (j + 1) * 1000000;
+        args->start = j * 100000;
+        args->count = 100000;
         args->hash = argv[1];
-        int err = pthread_create(&(tid[j]), NULL, &unhash_one, &args);
+        int err = pthread_create(&(tid[j]), NULL, &unhash_one, args);
         if (err != 0)
             printf("can't create thread :[%s]", strerror(err));
     }
@@ -52,5 +51,7 @@ int main(int argc, char **argv) {
         pthread_join(tid[j], NULL);
     }
 
+    pthread_exit(NULL);
+    
     return 0;
 }
