@@ -13,7 +13,7 @@ endif
 
 .SILENT: clean
 
-all: UnHash Dispatcher Generator
+all: UnHash Dispatcher
 
 UnHash: unhash.c hashutil.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
@@ -24,7 +24,7 @@ Dispatcher: dispatcher.c hashutil.c
 Generator: generator.c hashutil.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
-zip: Makefile unhash.c hashutil.c hashutil.h
+zip: Makefile unhash.c hashutil.c hashutil.h dispatcher.c
 	zip archive.zip $^
 
 clean:

@@ -10,6 +10,24 @@
 #include <string.h>
 #include <unistd.h>
 #include "hashutil.h"
+#include <pthread.h>
+
+int NUM_THREADS = 8;
+
+void* unhash_one(struct unhash_args *args){
+
+    int start = args->start;
+    int end = args->end;
+    char *hash = args->hash;
+
+    int result = unhash(start, end, hash);
+    if (result != -1){
+        printf("%d", result);
+        return NULL;
+    }
+    return NULL;
+
+}
 
 int main(int argc, char **argv) {
 
@@ -18,11 +36,20 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    int result = unhash(0, argv[1]);
-    if (result == -1) {
-        printf("No match found\n");
-    } else {
-        printf("%d\n", result);
+    pthread_t tid[NUM_THREADS];
+
+    for (int j = 0; j < NUM_THREADS; j++){
+        struct unhash_args *args = malloc(sizeof(struct unhash_args));
+        args->start = j * 1000000;
+        args->end = (j + 1) * 1000000;
+        args->hash = argv[1];
+        int err = pthread_create(&(tid[j]), NULL, &unhash_one, &args);
+        if (err != 0)
+            printf("can't create thread :[%s]", strerror(err));
+    }
+
+    for (int j = 0; j < NUM_THREADS; j++){
+        pthread_join(tid[j], NULL);
     }
 
     return 0;

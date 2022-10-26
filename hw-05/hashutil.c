@@ -37,10 +37,10 @@ char *hash(const char *str, int length) {
     return out;
 }
 
-int unhash(int start, const char *str){
+int unhash(int start, int count, const char *str){
     char *to_unhash = NULL;
     to_unhash = malloc(8);
-    for (int i = start; i < start+1000000; i++){
+    for (int i = start; i < start+count; i++){
         sprintf(to_unhash, "%d", i);
         char *hashed = hash(to_unhash, strlen(to_unhash));
         if (strcmp(hashed, str) == 0){

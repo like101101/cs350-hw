@@ -15,7 +15,8 @@
 #endif
 
 
-int NUM_THREADS, NUM_JOBS;
+int NUM_THREADS = 8;
+int NUM_JOBS;
 int WORK_PER_THREAD = 0;
 
 struct node {
@@ -81,7 +82,7 @@ void* dowork(struct node *unhashes) {
 
     int runs = 0;
     while (unhashes->data[0] != '\0'){
-        unhashes->result = unhash(0, unhashes->data);
+        unhashes->result = unhash(0, 1000000, unhashes->data);
         unhashes = unhashes->next;
         runs ++;
         if (runs == WORK_PER_THREAD && WORK_PER_THREAD != -1){
@@ -107,9 +108,11 @@ int main(int argc, char **argv) {
     if (argc == 1){
         //default reading
         fp = fopen("hashes.txt", "r");
+
+
     }else if (argc == 2){
         fp = fopen(argv[1], "r");
-        NUM_THREADS = 2;
+
     }else{
         fp = fopen(argv[1], "r");
         NUM_THREADS = atoi(argv[2]);
@@ -140,7 +143,7 @@ int main(int argc, char **argv) {
 
     split_work(assignment, unhashes);
     
-    start = clock();
+    //start = clock();
     for (int j = 0; j < NUM_THREADS; j++){
         err = pthread_create(&(tid[j]), NULL, &dowork, assignment[j]);
         if (err != 0)
@@ -151,7 +154,7 @@ int main(int argc, char **argv) {
         pthread_join(tid[j], NULL);
     }
     print_result(unhashes);
-    end = clock();
+    //end = clock();
     //printf("Time taken: %f\n", ((double) (end - start)) / CLOCKS_PER_SEC);
     pthread_exit(NULL);
 
