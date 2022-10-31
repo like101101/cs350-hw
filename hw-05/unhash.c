@@ -12,7 +12,7 @@
 #include "hashutil.h"
 #include <pthread.h>
 
-int NUM_THREADS = 2;
+int NUM_THREADS = 10;
 
 void* unhash_one(void *arguments){
     struct unhash_args *args = arguments;
