@@ -15,9 +15,10 @@
 #endif
 
 
-int NUM_THREADS = 12;
+int NUM_THREADS = 2;
 int NUM_JOBS;
 int WORK_PER_THREAD = 0;
+int TIMEOUT = 10;
 
 struct node {
     char data[33];
@@ -72,7 +73,11 @@ struct node * read_file(FILE *fp){
 void print_result(struct node *head){
     while (head->data[0] != '\0'){
         struct node *current = head;
-        printf("%d\n", head->result);
+        if (current->result == -1){
+            printf("%s\n", current->data);
+        }else{
+            printf("%d\n", head->result);
+        }
         head = head->next;
         free(current);
     }
@@ -82,16 +87,14 @@ void* dowork(struct node *unhashes) {
 
     int runs = 0;
     while (unhashes->data[0] != '\0'){
-        unhashes->result = unhash(0, 1000000, unhashes->data);
+        unhashes->result = unhash_timeout(TIMEOUT, unhashes->data);
         unhashes = unhashes->next;
         runs ++;
         if (runs == WORK_PER_THREAD && WORK_PER_THREAD != -1){
             break;
         }
     }
-
-    return NULL;
-
+    pthread_exit(NULL);
 }
 
 
@@ -113,9 +116,16 @@ int main(int argc, char **argv) {
     }else if (argc == 2){
         fp = fopen(argv[1], "r");
 
-    }else{
+    }else if (argc == 3){
         fp = fopen(argv[1], "r");
         NUM_THREADS = atoi(argv[2]);
+    }else if (argc == 4){
+        fp = fopen(argv[1], "r");
+        NUM_THREADS = atoi(argv[2]);
+        TIMEOUT = atoi(argv[3]);
+    }else{
+        printf("Usage: %s <hash_file> <num_threads> <timeout>\n", argv[0]);
+        return 1;
     }
     
     
@@ -154,9 +164,6 @@ int main(int argc, char **argv) {
         pthread_join(tid[j], NULL);
     }
     print_result(unhashes);
-    //end = clock();
-    //printf("Time taken: %f\n", ((double) (end - start)) / CLOCKS_PER_SEC);
-    pthread_exit(NULL);
 
     return 0;
 }

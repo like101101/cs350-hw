@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char to_unhash[8];
-    char *hashed = NULL;
+    char to_unhash[8] = "";
+    char *hashed = "";
     int start = 1000;
     for (int i = start; i < start+num_hashes; i++) {
         sprintf(to_unhash, "%d", i);
@@ -39,8 +39,7 @@ int main(int argc, char **argv) {
         fprintf(fp2, "%d\n", i);
     }
 
-    free(hashed);
-    free(to_unhash);
+ 
     fclose(fp1);
     fclose(fp2);
 
