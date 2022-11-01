@@ -28,16 +28,19 @@ struct node {
 
 
 void split_work(struct node* assignment[], struct node* head){
-    int i = 0, idx = 0;
+    int i = 0, idx = 1;
     struct node* current = head;
     assignment[0] = current;
     while (current->data[0] != '\0'){
         current = current->next;
         i++;
         if (i == WORK_PER_THREAD){
-            idx++;
             assignment[idx] = current;
             i = 0;
+            if (idx == NUM_THREADS){
+                return;
+            }
+            idx++;
         }
     }
 }
@@ -58,12 +61,16 @@ struct node * read_file(FILE *fp){
     while (len > 0){
         strtok(buf, "\n");
         strcpy(head->data, buf);
-        head->next = malloc(sizeof(struct node));
-        head->next->next = NULL;
-        head->result = -1;
-        head = head->next;
-        NUM_JOBS ++;
         len = getline(&buf, &bufsize, fp);
+        if (len > 0){
+            head->next = malloc(sizeof(struct node));
+            head->next->next = NULL;
+            head->result = -1;
+            head = head->next;
+            NUM_JOBS ++;
+        }else{
+            head->next = NULL;
+        }
     }
     
     free(buf);
@@ -144,17 +151,17 @@ int main(int argc, char **argv) {
         if (NUM_JOBS % NUM_THREADS == 0){
             WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
         }else{
-	    WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
+	    WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS);
         }   
     }
     
-    struct node *assignment[NUM_THREADS];
-    pthread_t tid[NUM_THREADS];
+    struct node *assignment[NUM_THREADS+1];
+    pthread_t tid[NUM_THREADS+1];
 
     split_work(assignment, unhashes);
     
     //start = clock();
-    for (int j = 0; j < NUM_THREADS; j++){
+    for (int j = 0; j < NUM_THREADS+1; j++){
         err = pthread_create(&(tid[j]), NULL, &dowork, assignment[j]);
         if (err != 0)
             printf("can't create thread :[%s]", strerror(err));
