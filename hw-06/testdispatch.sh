@@ -24,7 +24,7 @@ fi
 
 touch numbers.txt hashes.txt
 
-./Generator 100 1000
+./Generator 100 2000
 
 ./Dispatcher hashes.txt > output.txt
 

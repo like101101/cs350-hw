@@ -86,7 +86,7 @@ void print_result(struct node *head){
 void* dowork(struct node *unhashes) {
 
     int runs = 0;
-    while (unhashes->data[0] != '\0'){
+    while ((unhashes != NULL) && (unhashes->data[0] != '\0')){
         unhashes->result = unhash_timeout(TIMEOUT, unhashes->data);
         unhashes = unhashes->next;
         runs ++;
@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
         if (NUM_JOBS % NUM_THREADS == 0){
             WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
         }else{
-            WORK_PER_THREAD = NUM_JOBS / (NUM_THREADS+1);
+	    WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
         }   
     }
     
