@@ -28,10 +28,16 @@ struct node {
 
 
 void split_work(struct node* assignment[], struct node* head){
+    
     int i = 0, idx = 1;
+    
+    for (int j = 0; j < NUM_THREADS + 1; j++){
+        assignment[j] = NULL;
+    }
+    
     struct node* current = head;
     assignment[0] = current;
-    while (current->data[0] != '\0'){
+    while ((current != NULL) && (current->data[0] != '\0')){
         current = current->next;
         i++;
         if (i == WORK_PER_THREAD){
@@ -43,6 +49,7 @@ void split_work(struct node* assignment[], struct node* head){
             idx++;
         }
     }
+    return;
 }
 
 
@@ -57,6 +64,7 @@ struct node * read_file(FILE *fp){
     struct node *unhashes = head;
     
     len = getline(&buf, &bufsize, fp);
+    NUM_JOBS ++;
     while (len > 0){
 	char *ptr = strchr(buf, '\n');
 	if (ptr){ *ptr='\0';}
@@ -72,7 +80,6 @@ struct node * read_file(FILE *fp){
             head->next = NULL;
         }
     }
-    free(head);
     
     free(buf);
     return unhashes;
@@ -148,12 +155,12 @@ int main(int argc, char **argv) {
     
     if (NUM_THREADS == 1){
         WORK_PER_THREAD = NUM_JOBS;
+    }else if (NUM_JOBS % NUM_THREADS == 0){
+        WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
+    }else if(NUM_JOBS > NUM_THREADS){
+        WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
     }else{
-        if (NUM_JOBS % NUM_THREADS == 0){
-            WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
-        }else{
-	    WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS);
-        }   
+        WORK_PER_THREAD = 1;
     }
     
     struct node *assignment[NUM_THREADS+1];
