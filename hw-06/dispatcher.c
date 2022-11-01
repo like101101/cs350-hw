@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
         if (NUM_JOBS % NUM_THREADS == 0){
             WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
         }else{
-            WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
+            WORK_PER_THREAD = NUM_JOBS / (NUM_THREADS+1);
         }   
     }
     
