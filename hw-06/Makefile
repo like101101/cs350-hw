@@ -1,6 +1,6 @@
 CC = gcc
 OS_NAME := $(shell uname -s | tr A-Z a-z)
-CFLAGS = -O3 -w
+CFLAGS = -O0 -w -g
 
 LDLIBS_LINUX = -lcrypto -pthread
 LDLIBS_DARWIN = -pthread
