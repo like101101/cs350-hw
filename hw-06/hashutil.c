@@ -56,7 +56,7 @@ int unhash_timeout(int timeout, const char *str){
     char *to_unhash = NULL;
     to_unhash = malloc(8);
     int i = 0;
-    clock_t end = clock() + timeout * CLOCKS_PER_SEC;
+    clock_t end = clock() + (timeout * CLOCKS_PER_SEC / 1000);
     while (clock() < end){
         sprintf(to_unhash, "%d", i);
         char *hashed = hash(to_unhash, strlen(to_unhash));

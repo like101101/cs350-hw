@@ -15,16 +15,13 @@ endif
 
 all: Dispatcher
 
-UnHash: unhash.c hashutil.c
-	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
-
 Dispatcher: dispatcher.c hashutil.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
 Generator: generator.c hashutil.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
-zip: Makefile unhash.c hashutil.c hashutil.h dispatcher.c
+zip: Makefile hashutil.c hashutil.h dispatcher.c
 	zip archive.zip $^
 
 clean:

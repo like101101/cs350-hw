@@ -18,7 +18,7 @@
 int NUM_THREADS = 2;
 int NUM_JOBS;
 int WORK_PER_THREAD = 0;
-int TIMEOUT = 10;
+int TIMEOUT = 10000;
 
 struct node {
     char data[33];
