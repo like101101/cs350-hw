@@ -46,17 +46,17 @@ void split_work(struct node* assignment[], struct node* head){
 struct node * read_file(FILE *fp){
     char *buf = NULL;
     size_t bufsize = 32;
-    ssize_t len = 0;
-
+    ssize_t len = 1;
+    NUM_JOBS = 0;
     struct node *head = malloc(sizeof(struct node));
     head->next = NULL;
     head->result = -1;
     struct node *unhashes = head;
-
+    
     len = getline(&buf, &bufsize, fp);
-    NUM_JOBS ++;
     while (len > 0){
-        strtok(buf, "\n");
+	char *ptr = strchr(buf, '\n');
+	if (ptr){ *ptr='\0';}
         strcpy(head->data, buf);
         head->next = malloc(sizeof(struct node));
         head->next->next = NULL;
@@ -65,13 +65,14 @@ struct node * read_file(FILE *fp){
         NUM_JOBS ++;
         len = getline(&buf, &bufsize, fp);
     }
+    free(head);
     
     free(buf);
     return unhashes;
 }
 
 void print_result(struct node *head){
-    while (head->data[0] != '\0'){
+    while ((head != NULL) && (head->data[0] != '\0')){
         struct node *current = head;
         if (current->result == -1){
             printf("%s\n", current->data);
