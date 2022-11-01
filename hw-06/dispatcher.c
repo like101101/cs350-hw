@@ -73,7 +73,7 @@ struct node * read_file(FILE *fp){
         if (len > 0){
             head->next = malloc(sizeof(struct node));
             head->next->next = NULL;
-            head->result = -1;
+            head->result = 0;
             head = head->next;
             NUM_JOBS ++;
         }else{
@@ -100,17 +100,13 @@ void print_result(struct node *head){
 
 void* dowork(struct node *unhashes) {
 
-    int runs = 0;
-    while ((unhashes != NULL) && (unhashes->data[0] != '\0')){
+    while ((unhashes != NULL) && (unhashes->data[0] != '\0') && (unhashes->result == 0)){
         unhashes->result = unhash_timeout(TIMEOUT, unhashes->data);
         unhashes = unhashes->next;
-        runs ++;
-        if (runs == WORK_PER_THREAD && WORK_PER_THREAD != -1){
-            break;
-        }
     }
     pthread_exit(NULL);
 }
+
 
 
 // Main Driver  
@@ -158,7 +154,7 @@ int main(int argc, char **argv) {
     }else if (NUM_JOBS % NUM_THREADS == 0){
         WORK_PER_THREAD = NUM_JOBS / NUM_THREADS;
     }else if(NUM_JOBS > NUM_THREADS){
-        WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS)+1;
+        WORK_PER_THREAD = (NUM_JOBS / NUM_THREADS);
     }else{
         WORK_PER_THREAD = 1;
     }
@@ -168,16 +164,20 @@ int main(int argc, char **argv) {
 
     split_work(assignment, unhashes);
     
+    
+    
     //start = clock();
-    for (int j = 0; j < NUM_THREADS+1; j++){
+    for (int j = 0; j < NUM_THREADS; j++){
         err = pthread_create(&(tid[j]), NULL, &dowork, assignment[j]);
         if (err != 0)
             printf("can't create thread :[%s]", strerror(err));
     }
+    
 
     for (int j = 0; j < NUM_THREADS; j++){
         pthread_join(tid[j], NULL);
     }
+    
     print_result(unhashes);
 
     return 0;
