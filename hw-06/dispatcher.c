@@ -15,10 +15,11 @@
 #endif
 
 
-int NUM_THREADS = 2;
+int NUM_THREADS = 1;
 int NUM_JOBS;
 int WORK_PER_THREAD = 0;
-int TIMEOUT = 10000;
+int TIMEOUT = 1000;
+int NUM_COMPLETED = 0;
 
 struct node {
     char data[33];
@@ -26,6 +27,10 @@ struct node {
     int result;
 };
 
+struct linked_list {
+    int val;
+    struct linked_list *next;
+};
 
 void split_work(struct node* assignment[], struct node* head){
     
@@ -50,6 +55,27 @@ void split_work(struct node* assignment[], struct node* head){
         }
     }
     return;
+}
+
+struct linked_list* create_linked_list(struct node * head){
+    struct linked_list *list = NULL;
+    struct linked_list *current = NULL;
+    struct node *current_node = head;
+    while ((current_node != NULL) && (current_node->result != -1)){
+        if (list == NULL){
+            list = malloc(sizeof(struct linked_list));
+            list->val = current_node->result;
+            list->next = NULL;
+            current = list;
+        } else {
+            current->next = malloc(sizeof(struct linked_list));
+            current = current->next;
+            current->val = current_node->result;
+            current->next = NULL;
+        }
+        current_node = current_node->next;
+    }
+    return list;
 }
 
 
@@ -94,7 +120,16 @@ void print_result(struct node *head){
             printf("%d\n", head->result);
         }
         head = head->next;
-        free(current);
+        //free(current);
+    }
+}
+
+void print_list(struct linked_list *list){
+    while (list != NULL){
+        printf("%d\n", list->val);
+        struct linked_list *current = list;
+        list = list->next;
+        //free(current);
     }
 }
 
@@ -103,8 +138,14 @@ void* dowork(struct node *unhashes) {
     while ((unhashes != NULL) && (unhashes->data[0] != '\0') && (unhashes->result == 0)){
         unhashes->result = unhash_timeout(TIMEOUT, unhashes->data);
         unhashes = unhashes->next;
+        NUM_COMPLETED++;
     }
-    pthread_exit(NULL);
+    
+    LOOP: if(NUM_COMPLETED == NUM_JOBS){
+        pthread_exit(NULL);
+    }else{
+        goto LOOP;
+    }
 }
 
 
@@ -138,7 +179,6 @@ int main(int argc, char **argv) {
         printf("Usage: %s <hash_file> <num_threads> <timeout>\n", argv[0]);
         return 1;
     }
-    
     
     if (fp == NULL){
         printf("Error opening file");
@@ -178,7 +218,13 @@ int main(int argc, char **argv) {
         pthread_join(tid[j], NULL);
     }
     
+
+    //second round
     print_result(unhashes);
+
+    printf("--------\n");
+    struct linked_list *list = create_linked_list(unhashes);
+    print_list(list);
 
     return 0;
 }
