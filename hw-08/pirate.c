@@ -329,29 +329,31 @@ void break_cipher_text(char * cipher_text_loc){
     return;
 }
 
-void clean_up(crackable_node_t *unhashes, uncrackable_node_t *unhashables, hint_node_t *hints){
-    crackable_node_t *current = unhashes;
-    crackable_node_t *next;
+void clean_crackables(crackable_node_t *head){
+    crackable_node_t *current = head;
     while (current != NULL){
-        next = current->next;
-        free(current);
-        current = next;
+        crackable_node_t *temp = current;
+        current = current->next;
+        free(temp);
     }
-    uncrackable_node_t *current2 = unhashables;
-    uncrackable_node_t *next2;
-    while (current2 != NULL){
-        next2 = current2->next;
-        free(current2);
-        current2 = next2;
+}
+
+void clean_uncrackables(uncrackable_node_t *head){
+    uncrackable_node_t *current = head;
+    while (current != NULL){
+        uncrackable_node_t *temp = current;
+        current = current->next;
+        free(temp);
     }
-    hint_node_t *current3 = hints;
-    hint_node_t *next3;
-    while (current3 != NULL){
-        next3 = current3->next;
-        free(current3);
-        current3 = next3;
+}
+
+void clean_hints(hint_node_t *head){
+    hint_node_t *current = head;
+    while (current != NULL){
+        hint_node_t *temp = current;
+        current = current->next;
+        free(temp);
     }
-    return;
 }
 
 // Main Driver  
@@ -361,8 +363,6 @@ int main(int argc, char **argv) {
     FILE *fp;
     int err;
     clock_t start, end;
-    char *buf = NULL;
-    size_t bufsize = 33;
     char * cipher_loc;
 
     if (argc == 1){
@@ -426,6 +426,7 @@ int main(int argc, char **argv) {
     
     // Prepare uncrackables and hints
     create_uncrackbles();
+    clean_crackables(CRACKABLES);
     create_hints();
     sort_hints(HINTS, NUM_HINTS);
     TOTAL_HINTS = HINTS;
@@ -453,6 +454,7 @@ int main(int argc, char **argv) {
     // BREAK THE CIPHER TEXT !!!! LETS GOOOO
     sort_hints(TOTAL_HINTS, NUM_TOTAL_HINTS);
     break_cipher_text(cipher_loc);
+    clean_hints(TOTAL_HINTS);
 
 
     //destory the lock
