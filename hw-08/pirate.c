@@ -124,8 +124,6 @@ void creat_crackables(FILE *fp){
         }
         NUM_UNCRACKABLES++;
     }
-
-    printf("head result: %d\n", head->result);
     
     free(buf);
     fclose(fp);
