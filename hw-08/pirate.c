@@ -426,8 +426,8 @@ int main(int argc, char **argv) {
     
     // Prepare uncrackables and hints
     create_uncrackbles();
-    clean_crackables(CRACKABLES);
     create_hints();
+    clean_crackables(CRACKABLES);
     sort_hints(HINTS, NUM_HINTS);
     TOTAL_HINTS = HINTS;
 
