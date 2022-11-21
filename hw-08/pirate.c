@@ -124,6 +124,8 @@ void creat_crackables(FILE *fp){
         }
         NUM_UNCRACKABLES++;
     }
+
+    printf("head result: %d\n", head->result);
     
     free(buf);
     fclose(fp);
@@ -175,7 +177,8 @@ void sort_hints(hint_node_t *hints, int num_hints){
 
     int i = 0;
     hint_node_t *head = hints;
-    int *arr = malloc(sizeof(int) * NUM_HINTS);
+
+    int *arr = malloc(sizeof(int) * num_hints);
     while (hints != NULL){
         arr[i] = hints->val;
         hints = hints->next;

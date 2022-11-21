@@ -35,6 +35,7 @@ char *hash(const char *str, int length) {
         snprintf(&(out[n*2]), 16*2, "%02x", (unsigned int)digest[n]);
     }
 
+    //free(digest);
     return out;
 }
 
@@ -45,14 +46,15 @@ int unhash(int start, int count, const char *str){
         sprintf(to_unhash, "%d", i);
         char *hashed = hash(to_unhash, strlen(to_unhash));
         if (strcmp(hashed, str) == 0){
+            free(to_unhash);
             return i;
         }
     }
+    free(to_unhash);
     return -1;
 }
 
 int unhash_timeout(int timeout, const char *str){
-    
     
     char *to_unhash = NULL;
     to_unhash = malloc(8);
@@ -62,10 +64,14 @@ int unhash_timeout(int timeout, const char *str){
         sprintf(to_unhash, "%d", i);
         char *hashed = hash(to_unhash, strlen(to_unhash));
         if (strcmp(hashed, str) == 0){
+            free(hashed);
+            free(to_unhash);
             return i;
         }
+        free(hashed);
         i++;
     }
+    free(to_unhash);
     return -1;
 }
 
@@ -74,11 +80,14 @@ int crack_hash(int start, int end, const char *str){
     to_unhash = malloc(24);
     for (int i = start; i < end; i++){
         sprintf(to_unhash, "%d;%d;%d", start, i, end);
-        //printf("%s\n", to_unhash);
         char *hashed = hash(to_unhash, strlen(to_unhash));
         if (strcmp(hashed, str) == 0){
+            free(hashed);
+            free(to_unhash);
             return i;
         }
+        free(hashed);
     }
+    free(to_unhash);
     return 0;
 }
