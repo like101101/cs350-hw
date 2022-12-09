@@ -250,7 +250,7 @@ void* break_crackables() {
     pthread_mutex_unlock(&queue_lock);
 
     // Break the crackable
-    
+
     current->result = unhash_timeout(TIMEOUT, current->data);
     if (current->result != -1){
         pthread_mutex_lock(&broken_lock);

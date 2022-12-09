@@ -22,5 +22,6 @@ typedef struct hint_node {
 char *hash(const char *str, int length);
 int unhash(int start, int count, const char *str);
 char * crack_hash(int start, int end, const char *str);
+void free_table();
 
 #endif // HASHUTIL

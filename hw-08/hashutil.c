@@ -11,6 +11,10 @@
 #include <unistd.h>
 #include <time.h>
 
+// Global TABLE
+#define TABLE_SIZE 10000000
+char *TABLE[TABLE_SIZE] = { 0 };
+
 char *hash(const char *str, int length) {
     int n;
     MD5_CTX c;
@@ -61,14 +65,22 @@ int unhash_timeout(int timeout, const char *str){
     int i = 0;
     clock_t end = clock() + ((timeout / 1000) * CLOCKS_PER_SEC * 3);
     while (clock() < end){
-        sprintf(to_unhash, "%d", i);
-        char *hashed = hash(to_unhash, strlen(to_unhash));
-        if (strcmp(hashed, str) == 0){
+        if (TABLE[i] != NULL){
+            if (strcmp(TABLE[i], str) == 0){
+                free(to_unhash);
+                return i;
+            }
+        }else{
+            sprintf(to_unhash, "%d", i);
+            char *hashed = hash(to_unhash, strlen(to_unhash));
+            TABLE[i] = hashed;
+            if (strcmp(hashed, str) == 0){
+                free(hashed);
+                free(to_unhash);
+                return i;
+            }
             free(hashed);
-            free(to_unhash);
-            return i;
         }
-        free(hashed);
         i++;
     }
     free(to_unhash);
@@ -90,4 +102,12 @@ int crack_hash(int start, int end, const char *str){
     }
     free(to_unhash);
     return 0;
+}
+
+void free_table(){
+    for (int i = 0; i < TABLE_SIZE; i++){
+        if (TABLE[i] != NULL){
+            free(TABLE[i]);
+        }
+    }
 }
