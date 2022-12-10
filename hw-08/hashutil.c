@@ -60,30 +60,27 @@ int unhash(int start, int count, const char *str){
 
 int unhash_timeout(int timeout, const char *str){
     
-    char *to_unhash = NULL;
-    to_unhash = malloc(8);
     int i = 0;
     clock_t end = clock() + ((timeout / 1000) * CLOCKS_PER_SEC * 3);
     while (clock() < end){
         if (TABLE[i] != NULL){
             if (strcmp(TABLE[i], str) == 0){
-                free(to_unhash);
                 return i;
             }
         }else{
+            char *to_unhash = NULL;
+            to_unhash = malloc(8);
             sprintf(to_unhash, "%d", i);
             char *hashed = hash(to_unhash, strlen(to_unhash));
             TABLE[i] = hashed;
             if (strcmp(hashed, str) == 0){
-                free(hashed);
                 free(to_unhash);
                 return i;
             }
-            free(hashed);
+            free(to_unhash);
         }
         i++;
     }
-    free(to_unhash);
     return -1;
 }
 

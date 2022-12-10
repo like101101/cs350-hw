@@ -429,6 +429,7 @@ int main(int argc, char **argv) {
     create_uncrackbles();
     create_hints();
     clean_crackables(CRACKABLES);
+    free_table();
     sort_hints(HINTS, NUM_HINTS);
     TOTAL_HINTS = HINTS;
 
